@@ -1,0 +1,61 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
+VAGRANTFILE_API_VERSION = "2"
+
+# locate requisite ENV variables or default
+BOX_NAME = ENV["BOX_NAME"] || "trusty32-amd"
+BOX_URI = ENV["BOX_URI"] || "https://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box" 
+BOX_MEMORY = ENV["BOX_MEMORY"] || "512"
+REDMINE_DOMAIN = ENV["REDMINE_DOMAIN"] || "redmine.me"
+REDMINE_IP = ENV["REDMINE_IP"] || "10.0.0.2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  # All Vagrant configuration is done here. The most common configuration
+  # options are documented and commented below. For a complete reference,
+  # please see the online documentation at vagrantup.com.
+
+  # Every Vagrant virtual environment requires a box to build off of.
+  config.vm.box = BOX_NAME
+
+  # The url from where the 'config.vm.box' box will be fetched if it
+  # doesn't already exist on the user's system.
+  config.vm.box_url = BOX_URI 
+
+  # Create a forwarded port mapping which allows access to a specific port
+  # within the machine from a port on the host machine. In the example below,
+  # accessing "localhost:8080" will access port 80 on the guest machine.
+  config.vm.network "forwarded_port", guest: 80, host: 8080
+
+  # Create a private network, which allows host-only access to the machine
+  # using a specific IP.
+  config.vm.network "private_network", ip: REDMINE_IP
+  
+  # tells vagrant to sync just our theme on the virtual machine
+  # comment out to sync everything to /vagrant
+  config.vm.synced_folder File.dirname(__FILE__), "/vagrant/"
+
+  # tells vagrant to use our hostname
+  config.vm.hostname = "#{REDMINE_DOMAIN}"
+
+  # Provider-specific configuration so you can fine-tune various
+  # backing providers for Vagrant. These expose provider-specific options.
+  # Example for VirtualBox:
+  #
+  config.vm.provider "virtualbox" do |vb|
+     # Don't boot with headless mode
+     #vb.gui = true
+  
+    # this option makes the NAT engine use the host's resolver mechanisms to handle DNS requests 
+    # which essentially means that we can specify domain "redmine.me" to be resolved by our local hosts file 
+    #vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+    # set the memory of the virtualbox
+    vb.customize ["modifyvm", :id, "--memory", BOX_MEMORY]
+  end
+
+  # once the vm is started
+  # use the bootstrap.sh file to install and setup redmine
+  config.vm.provision "shell", path: "bootstrap.sh"
+  config.vm.provision "shell", path: "update-theme.sh"
+end
