@@ -5,9 +5,9 @@
 VAGRANTFILE_API_VERSION = "2"
 
 # locate requisite ENV variables or default
-BOX_NAME = ENV["BOX_NAME"] || "trusty32-amd"
+BOX_NAME = ENV["BOX_NAME"] || "trusty64-amd"
 BOX_URI = ENV["BOX_URI"] || "https://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box" 
-BOX_MEMORY = ENV["BOX_MEMORY"] || "512"
+BOX_MEMORY = ENV["BOX_MEMORY"] || "2048"
 REDMINE_DOMAIN = ENV["REDMINE_DOMAIN"] || "redmine.me"
 REDMINE_IP = ENV["REDMINE_IP"] || "10.0.0.2"
 
@@ -56,6 +56,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # once the vm is started
   # use the bootstrap.sh file to install and setup redmine
-  config.vm.provision "shell", path: "bootstrap.sh"
-  config.vm.provision "shell", path: "update-theme.sh"
+  config.vm.provision "shell", path: "bitnami-bootstrap.sh"
+  # config.vm.provision "shell", path: "update-theme.sh"
 end
